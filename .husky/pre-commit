@@ -1,1 +1,2 @@
-lint-staged
+echo "хук запущен из файла"
+npx lint-staged
