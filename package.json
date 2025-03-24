@@ -63,7 +63,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "echo 'pre-commit hook running' && npx lint-staged"
     }
   },
   "lint-staged": {
