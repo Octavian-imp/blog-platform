@@ -1,2 +1,1 @@
-echo "хук запущен из файла"
-npx lint-staged
+npm test

@@ -2,32 +2,6 @@ import React from "react"
 import { Link, Route, Routes } from "react-router"
 
 const App = () => {
-  
-  
-  
-   
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
   return (
     <Routes>
       <Route
