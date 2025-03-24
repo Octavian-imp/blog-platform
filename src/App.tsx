@@ -1,15 +1,24 @@
-import React, { useState } from "react";
-import styles from "./App.module.scss";
+import React from "react"
+import { Link, Route, Routes } from "react-router"
 
 const App = () => {
-  const [counter, setCounter] = useState(0);
+  
+  
+  
+  
   return (
-    <div className={styles.app}>
-      {counter}
+    <Routes>
+      <Route
+        index
+        element={
+          <>
+            index page <Link to="/second">go to second</Link>
+          </>
+        }
+      />
+      <Route path="/second" element={<>second page</>} />
+    </Routes>
+  )
+}
 
-      <button onClick={() => setCounter((prev) => prev + 1)}>+</button>
-    </div>
-  );
-};
-
-export default App;
+export default App
