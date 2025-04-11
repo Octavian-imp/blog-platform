@@ -1,0 +1,11 @@
+.header {
+  @apply w-full;
+  background-color: #fff;
+  color: #000;
+  padding: 9px 22px 15px;
+  .signUp {
+    border-radius: 5px;
+    padding: 6px 18px 10px;
+    @apply border border-success text-success;
+  }
+}

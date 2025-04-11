@@ -1,18 +1,16 @@
 import React from "react"
-import { Link, Route, Routes } from "react-router"
+import { Route, Routes } from "react-router"
+import HeaderLayout from "./components/layouts/HeaderLayout"
+import router, { routes } from "./router"
 
 const App = () => {
   return (
     <Routes>
-      <Route
-        index
-        element={
-          <>
-            index page <Link to="/second">go to second</Link>
-          </>
-        }
-      />
-      <Route path="/second" element={<>second page</>} />
+      <Route path={routes.index} element={<HeaderLayout />}>
+        {router.map((route, index) => (
+          <Route key={index} {...route} />
+        ))}
+      </Route>
     </Routes>
   )
 }

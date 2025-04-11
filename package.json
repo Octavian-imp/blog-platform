@@ -62,11 +62,6 @@
     "react-dom": "^18.3.1",
     "react-router": "^7.4.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "echo 'pre-commit hook running' && npx lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{js,ts,tsx}": [
       "npm run lint:fix",
