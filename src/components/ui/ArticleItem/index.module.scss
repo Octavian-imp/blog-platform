@@ -11,8 +11,12 @@
     @apply text-primary;
   }
   .favorite {
-    color: rgba(#000, 0.75);
-    @apply flex items-center gap-1 text-xs leading-[22px];
+    color: #000;
+    @apply flex items-center gap-1 text-xs leading-[22px] select-none;
+    &.disabled {
+      color: rgba(#000, 0.5);
+      pointer-events: none;
+    }
   }
   .tagItem {
     padding: 2px 6px 3px 5px;

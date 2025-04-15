@@ -1,0 +1,15 @@
+.btn-outline {
+  border-radius: 5px;
+  padding: 6px 18px 10px;
+  @apply border border-black text-black;
+  &:hover {
+    @apply text-black;
+  }
+  &-success {
+    @extend .btn-outline;
+    @apply border-success text-success;
+    &:hover {
+      @apply brightness-75 text-success;
+    }
+  }
+}
