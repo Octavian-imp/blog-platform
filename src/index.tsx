@@ -10,6 +10,14 @@ createRoot(document.getElementById("root")!).render(
     <ConfigProvider
       theme={{
         hashed: false,
+        components: {
+          Pagination: {
+            itemActiveBg: "#1890FF",
+            itemBg: "transparent",
+            colorPrimary: "white",
+            colorPrimaryBorder: "transparent",
+          },
+        },
       }}
     >
       <App />

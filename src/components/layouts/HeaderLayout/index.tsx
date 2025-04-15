@@ -6,7 +6,7 @@ import styles from "./index.module.scss"
 
 const HeaderLayout = () => {
   return (
-    <Flex vertical>
+    <Flex vertical gap={26}>
       <Flex className={styles.header} align="center" justify="space-between">
         <div>Realworld Blog</div>
         <Flex gap={19} align="center">

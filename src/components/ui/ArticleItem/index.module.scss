@@ -1,0 +1,39 @@
+.container {
+  background-color: white;
+  padding: 15px 14px;
+  max-width: 938px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  .title {
+    margin: 0;
+    font-weight: 400;
+    font-size: 20px;
+    @apply text-primary;
+  }
+  .favorite {
+    color: rgba(#000, 0.75);
+    @apply flex items-center gap-1 text-xs leading-[22px];
+  }
+  .tagItem {
+    padding: 2px 6px 3px 5px;
+    color: rgba(#000, 0.5);
+    @apply bg-transparent w-fit m-0;
+  }
+  .previewDescription {
+    color: rgba(#000, 0.75);
+    @apply text-sm;
+  }
+  .username {
+    margin: 0;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 28px;
+    @apply whitespace-nowrap;
+  }
+  .createdAtArticle {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 22px;
+    @apply whitespace-nowrap text-gray-500;
+  }
+}

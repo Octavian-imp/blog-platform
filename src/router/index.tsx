@@ -1,21 +1,21 @@
 import React from "react"
-import { ActionFunctionArgs, RouteProps } from "react-router"
+import { RouteProps } from "react-router"
 
 import ListPage from "../main"
-import ArticlePage from "../main/article"
 import CreateArticlePage from "../main/article/create"
 import EditArticlePage from "../main/article/edit"
-import SignUpPage from "../main/signUp"
 import SignInPage from "../main/signIn"
+import SignUpPage from "../main/signUp"
 
 export const routes = Object.freeze({
   index: "/",
   signUp: "/sign-up",
   signIn: "/sign-in",
-  article: {
-    index: "/article",
-    create: "/article/create",
-    edit: "/article/edit",
+  articles: {
+    index: "/articles",
+    create: "/create",
+    edit: "/edit",
+    detail: ":slug",
   },
 } as const)
 
@@ -34,15 +34,20 @@ const router: Array<RouteProps> = [
     element: <SignInPage />,
   },
   {
-    path: routes.article.index,
-    element: <ArticlePage />,
+    path: routes.articles.index,
+    element: <ListPage />,
+    children: <>hello</>,
   },
   {
-    path: routes.article.create,
+    path: routes.articles.detail,
+    element: <ListPage />,
+  },
+  {
+    path: routes.articles.create,
     element: <CreateArticlePage />,
   },
   {
-    path: routes.article.edit,
+    path: routes.articles.edit,
     element: <EditArticlePage />,
   },
 ]

@@ -1,12 +1,17 @@
-import { Flex } from "antd"
+import { Flex, Pagination } from "antd"
 import React from "react"
-import { Link } from "react-router"
-import { routes } from "../router"
+import ArticleItem from "../components/ui/ArticleItem"
+import { useLocation, useParams } from "react-router"
 
 const ListPage = () => {
+  const location = useLocation()
+  const params = useParams()
+  console.log(location.pathname, params)
+
   return (
-    <Flex>
-      list page <Link to={routes.signUp}>go to signUp</Link>
+    <Flex vertical align="center" gap={26}>
+      <ArticleItem />
+      <Pagination align="center" defaultCurrent={1} total={5000} showSizeChanger={false} />
     </Flex>
   )
 }
