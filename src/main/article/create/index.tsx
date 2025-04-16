@@ -1,75 +1,152 @@
+import ArticlesApi, { TypeCreateArticle } from "@/services/ArticlesApi"
+import { useAppSelector } from "@/store/redux"
+import { selectToken } from "@/store/slices/Users"
 import { Button, Flex, Input, Space, Typography } from "antd"
 import TextArea from "antd/es/input/TextArea"
-import React, { useState } from "react"
+import React from "react"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
 
-type Props = {}
+export type ArticleForm = Omit<TypeCreateArticle, "tagList"> & { tags: { id: number; value: string }[] }
 
-const CreateArticlePage = (props: Props) => {
-  const [tagsArr, setTagsArr] = useState<Array<{ id: number; value: string }>>([
-    { id: new Date().getTime(), value: "" },
-  ])
+const CreateArticlePage = () => {
+  const token = useAppSelector(selectToken)
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isValid },
+  } = useForm<ArticleForm>({
+    defaultValues: {
+      title: "",
+      description: "",
+      body: "",
+      tags: [{ id: new Date().getTime(), value: "" }],
+    },
+    mode: "onBlur",
+    reValidateMode: "onChange",
+  })
+
+  const { fields: tagFields, append, remove } = useFieldArray({ control, name: "tags" })
+
+  const onSubmit = (data: ArticleForm) => {
+    if (!isValid) return
+
+    const tags = data.tags.map((tag) => tag.value).filter((tag) => tag.trim().length > 0)
+
+    ArticlesApi.create({
+      body: data.body,
+      description: data.description,
+      title: data.title,
+      tagList: tags,
+      token,
+    }).then((article) => {
+      console.log(article)
+    })
+  }
 
   return (
-    <Flex
-      style={{
-        backgroundColor: "white",
-        padding: "14px 15px",
-        boxShadow: "0 4px 12px rgba(#000, .5)",
-        borderRadius: "5px",
-        maxWidth: "938px",
-        alignSelf: "center",
-        width: "100%",
-      }}
-      align="center"
-      vertical
-      gap={20}
+    <form
+      noValidate
+      style={{ width: "100%", maxWidth: "938px", alignSelf: "center" }}
+      onSubmit={handleSubmit(onSubmit)}
     >
-      <Typography.Title style={{ fontSize: "20px", fontWeight: "500", lineHeight: "28px" }}>
-        Create new article
-      </Typography.Title>
+      <Flex
+        style={{
+          backgroundColor: "white",
+          padding: "14px 15px",
+          boxShadow: "0 4px 12px rgba(#000, .5)",
+          borderRadius: "5px",
+          width: "100%",
+        }}
+        align="center"
+        vertical
+        gap={20}
+      >
+        <Typography.Title style={{ fontSize: "20px", fontWeight: "500", lineHeight: "28px" }}>
+          Create new article
+        </Typography.Title>
 
-      <Flex vertical style={{ width: "100%" }}>
-        <Typography.Title level={5}>Title</Typography.Title>
-        <Input placeholder="Title" />
-      </Flex>
-      <Flex vertical style={{ width: "100%" }}>
-        <Typography.Title level={5}>Short description</Typography.Title>
-        <Input placeholder="Short description" />
-      </Flex>
-      <Flex vertical style={{ width: "100%" }}>
-        <Typography.Title level={5}>Text</Typography.Title>
-        <TextArea placeholder="Title" autoSize={{ minRows: 4, maxRows: 10 }} />
-      </Flex>
-
-      <Flex vertical style={{ width: "100%" }}>
-        <Typography.Title level={5}>Tags</Typography.Title>
-        <Flex vertical gap={4}>
-          {tagsArr.map((item) => (
-            <Space.Compact key={item.id} style={{ width: "50%" }}>
-              <Input placeholder="tags" defaultValue={item.value} />
-              <Button
-                danger
-                onClick={() => {
-                  setTagsArr((prev) => prev.filter((tag) => tag.id !== item.id))
-                }}
-              >
-                delete
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => setTagsArr((prev) => [...prev, { id: new Date().getTime(), value: "" }])}
-              >
-                Add
-              </Button>
-            </Space.Compact>
-          ))}
+        <Flex vertical style={{ width: "100%" }}>
+          <Typography.Title level={5}>Title</Typography.Title>
+          <Controller
+            name="title"
+            control={control}
+            rules={{ required: "This field is required" }}
+            render={({ field, fieldState }) => (
+              <Input {...field} placeholder="Title" status={fieldState.error ? "error" : undefined} />
+            )}
+          />
         </Flex>
-      </Flex>
+        <Flex vertical style={{ width: "100%" }}>
+          <Typography.Title level={5}>Short description</Typography.Title>
 
-      <Button type="primary" style={{ width: "100%" }}>
-        Send
-      </Button>
-    </Flex>
+          <Controller
+            name="description"
+            rules={{ required: "This field is required" }}
+            control={control}
+            render={({ field, fieldState }) => (
+              <Input {...field} placeholder="Short description" status={fieldState.error ? "error" : undefined} />
+            )}
+          />
+        </Flex>
+        <Flex vertical style={{ width: "100%" }}>
+          <Typography.Title level={5}>Text</Typography.Title>
+          <Controller
+            name="body"
+            control={control}
+            rules={{ required: "This field is required" }}
+            render={({ field, fieldState }) => (
+              <TextArea
+                {...field}
+                status={fieldState.error ? "error" : undefined}
+                autoSize={{ minRows: 4, maxRows: 10 }}
+                placeholder="Text"
+              />
+            )}
+          />
+        </Flex>
+
+        <Flex vertical style={{ width: "100%" }}>
+          <Typography.Title level={5}>Tags</Typography.Title>
+          <Flex vertical gap={4}>
+            {tagFields.map((item, index) => (
+              <Controller
+                key={index}
+                name={`tags.${index}.value`}
+                control={control}
+                rules={{
+                  required: "This field is required",
+                  minLength: {
+                    value: 1,
+                    message: "Minimum length is 1",
+                  },
+                }}
+                render={({ field, fieldState }) => (
+                  <Space.Compact key={item.id} style={{ width: "50%" }}>
+                    <Input {...field} status={fieldState.error ? "error" : undefined} />
+                    <Button danger onClick={() => remove(index)}>
+                      delete
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        if (fieldState.error || field.value.trim().length === 0) return
+                        append({ id: new Date().getTime(), value: "" })
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </Space.Compact>
+                )}
+              />
+            ))}
+          </Flex>
+        </Flex>
+        <Button htmlType="submit" type="primary" style={{ width: "100%" }}>
+          Send
+        </Button>
+      </Flex>
+    </form>
   )
 }
 

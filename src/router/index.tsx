@@ -18,8 +18,8 @@ export const clientRoutes = Object.freeze({
   signIn: "/sign-in",
   profile: "/profile",
   articles: {
-    index: "articles",
-    create: "articles/create",
-    edit: "articles/edit",
+    index: "/articles",
+    create: "/articles/create",
+    edit: (slug: string) => `/articles/${slug}/edit`,
   },
 } as const)

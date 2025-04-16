@@ -4,6 +4,8 @@ import React from "react"
 import { createRoot } from "react-dom/client"
 import { HashRouter } from "react-router"
 import App from "./App"
+import { Provider } from "react-redux"
+import { store } from "./store/redux"
 
 createRoot(document.getElementById("root")!).render(
   <HashRouter>
@@ -20,7 +22,9 @@ createRoot(document.getElementById("root")!).render(
         },
       }}
     >
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </ConfigProvider>
   </HashRouter>
 )

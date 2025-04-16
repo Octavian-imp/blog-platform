@@ -2,12 +2,13 @@ import React from "react"
 import { Route, Routes } from "react-router"
 import HeaderLayout from "./components/layouts/HeaderLayout"
 import ListPage from "./main"
+import ProfilePage from "./main/Profile"
 import CreateArticlePage from "./main/article/create"
 import DetailArticlePage from "./main/article/detail"
+import EditArticlePage from "./main/article/edit"
 import SignInPage from "./main/signIn"
 import SignUpPage from "./main/signUp"
 import { router } from "./router"
-import ProfilePage from "./main/Profile"
 
 const App = () => {
   return (
@@ -20,7 +21,8 @@ const App = () => {
         <Route path={router.articles.index}>
           <Route index element={<ListPage />} />
           <Route path={router.articles.create} element={<CreateArticlePage />} />
-          <Route path={":id"} element={<DetailArticlePage />} />
+          <Route path={":slug"} element={<DetailArticlePage />} />
+          <Route path={":slug/edit"} element={<EditArticlePage />} />
         </Route>
       </Route>
     </Routes>

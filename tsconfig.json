@@ -20,6 +20,9 @@
     "noUnusedLocals": true, // Raise errors on unused local variables
     "noEmit": true, // Do not emit compiler output files like JavaScript source code, source-maps or declarations
     "jsx": "react",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
     "plugins": [
       {
         "name": "typescript-plugin-css-modules"

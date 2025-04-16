@@ -1,11 +1,34 @@
-import { Button, Flex, Form, Input, Typography } from "antd"
+import { useAppDispatch, useAppSelector } from "@/store/redux"
+import { selectUser, updateUser } from "@/store/slices/Users"
+import { Button, Flex, Input, Typography } from "antd"
 import React from "react"
-import { Link } from "react-router"
-import { clientRoutes } from "../../router"
+import { Controller, useForm } from "react-hook-form"
 
 type Props = {}
 
 const ProfilePage = (props: Props) => {
+  const user = useAppSelector(selectUser)
+  const dispatch = useAppDispatch()
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isValid },
+  } = useForm({
+    defaultValues: {
+      username: user.username,
+      email: user.email,
+      newPassword: "",
+      avatarUrl: user.image,
+    },
+  })
+
+  function onSubmit(data: any) {
+    if (!isValid) return
+    console.log(data)
+    dispatch(updateUser({ ...data, password: data.newPassword, image: data.avatarUrl }))
+  }
+
   return (
     <Flex
       vertical
@@ -20,51 +43,123 @@ const ProfilePage = (props: Props) => {
       }}
       gap={20}
     >
-      <Typography.Title
-        level={2}
-        style={{ fontSize: "20px", lineHeight: "28px", fontWeight: 500, alignSelf: "center" }}
-      >
-        Edit Profile
-      </Typography.Title>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Typography.Title
+          level={2}
+          style={{ fontSize: "20px", lineHeight: "28px", fontWeight: 500, alignSelf: "center" }}
+        >
+          Edit Profile
+        </Typography.Title>
 
-      {/* <Flex vertical gap={12}>
-        <Flex vertical gap={2}>
-          <Typography.Title level={5}>Username</Typography.Title>
-          <Input placeholder="Username" />
-        </Flex>
-        <Flex vertical gap={2}>
-          <Typography.Title level={5}>Email address</Typography.Title>
-          <Input type="email" placeholder="Email address" />
-        </Flex>
-        <Flex vertical>
-          <Typography.Title level={5}>New password</Typography.Title>
-          <Input.Password placeholder="Password" autoComplete="off" />
-        </Flex>
-        <Flex vertical>
-          <Typography.Title level={5}>Avatar URL</Typography.Title>
-          <Input type="url" placeholder="Avatar image" autoComplete="off" />
-        </Flex>
-      </Flex> */}
-      <Form layout="vertical">
-        <Form.Item label="Username" name="username" rules={[{ required: true, message: "Username" }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item label="Email" name="email" rules={[{ required: true, message: "Email" }]}>
-          <Input type="email" />
-        </Form.Item>
-        <Form.Item label="New password" name="newPassword" rules={[{ required: true, message: "Password" }]}>
-          <Input.Password />
-        </Form.Item>
-        <Form.Item label="Avatar URL" name="avatarUrl" rules={[{ required: true, message: "Avatar image" }]}>
-          <Input type="url" />
-        </Form.Item>
+        <Flex vertical gap={12}>
+          <Flex vertical gap={2}>
+            <Typography.Title level={5}>Username</Typography.Title>
+            <Controller
+              control={control}
+              name="username"
+              rules={{
+                required: {
+                  value: true,
+                  message: "Username is required",
+                },
+                minLength: {
+                  value: 3,
+                  message: "Username must be at least 3 characters",
+                },
+                maxLength: {
+                  value: 20,
+                  message: "Username must be less than 20 characters",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <>
+                  <Input
+                    {...field}
+                    status={fieldState.error ? "error" : ""}
+                    autoComplete="off"
+                    placeholder="Username"
+                  />
+                  {fieldState.error && (
+                    <Typography.Text type="danger" style={{ fontSize: "12px" }}>
+                      {fieldState.error.message}
+                    </Typography.Text>
+                  )}
+                </>
+              )}
+            />
+          </Flex>
+          <Flex vertical gap={2}>
+            <Typography.Title level={5}>Email address</Typography.Title>
+            <Controller
+              control={control}
+              name="email"
+              rules={{
+                required: {
+                  value: true,
+                  message: "Email is required",
+                },
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Invalid email address",
+                },
+                minLength: {
+                  value: 3,
+                  message: "Email must be at least 3 characters",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "Email must be less than 50 characters",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <>
+                  <Input {...field} status={fieldState.error ? "error" : ""} placeholder="Email address" />
+                  {fieldState.error && (
+                    <Typography.Text type="danger" style={{ fontSize: "12px" }}>
+                      {fieldState.error.message}
+                    </Typography.Text>
+                  )}
+                </>
+              )}
+            />
+          </Flex>
+          <Flex vertical>
+            <Typography.Title level={5}>New password</Typography.Title>
+            <Controller
+              control={control}
+              name="newPassword"
+              rules={{
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+                maxLength: {
+                  value: 40,
+                  message: "Password must be less than 40 characters",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <>
+                  <Input.Password {...field} status={fieldState.error ? "error" : ""} placeholder="Password" />
+                  {fieldState.error && (
+                    <Typography.Text type="danger" style={{ fontSize: "12px" }}>
+                      {fieldState.error.message}
+                    </Typography.Text>
+                  )}
+                </>
+              )}
+            />
+          </Flex>
+          <Flex vertical>
+            <Typography.Title level={5}>Avatar URL</Typography.Title>
+            <Controller control={control} name="avatarUrl" render={({ field }) => <Input {...field} type="url" />} />
+          </Flex>
 
-        <Form.Item label={null}>
           <Button type="primary" htmlType="submit" className="w-full">
             Save
           </Button>
-        </Form.Item>
-      </Form>
+        </Flex>
+      </form>
     </Flex>
   )
 }
