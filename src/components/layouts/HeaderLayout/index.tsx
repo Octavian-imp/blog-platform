@@ -1,11 +1,13 @@
 import { useAppSelector } from "@/store/redux"
-import { selectUser } from "@/store/slices/Users"
+import { logoutUser, selectUser } from "@/store/slices/Users"
 import useIsAuth from "@/utils/useIsAuth"
-import { Flex, Image } from "antd"
+import { Button, Flex, Image } from "antd"
 import React from "react"
 import { Link, Outlet } from "react-router"
 import { clientRoutes } from "../../../router"
 import styles from "./index.module.scss"
+
+import { useDispatch } from "react-redux"
 
 const HeaderLayout = () => {
   const isAuth = useIsAuth()
@@ -33,6 +35,11 @@ HeaderLayout.GuestMenu = () => {
 
 HeaderLayout.AuthMenu = () => {
   const user = useAppSelector(selectUser)
+  const dispatch = useDispatch()
+
+  function logout() {
+    dispatch(logoutUser())
+  }
 
   return (
     <Flex gap={26} align="center">
@@ -49,9 +56,9 @@ HeaderLayout.AuthMenu = () => {
           src={user.image || "../../../assets/img/user.png"}
         />
       </Link>
-      <Link to={"#"} className={styles["btn-outline"]}>
+      <Button type="default" className={styles["btn-outline"]} onClick={logout}>
         Log Out
-      </Link>
+      </Button>
     </Flex>
   )
 }

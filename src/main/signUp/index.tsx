@@ -1,6 +1,7 @@
 import { clientRoutes } from "@/router/index"
 import { useAppDispatch } from "@/store/redux"
 import { createUser } from "@/store/slices/Users"
+import { SerializedError } from "@reduxjs/toolkit"
 import { Button, Checkbox, Divider, Flex, Input, Typography } from "antd"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -27,14 +28,18 @@ const SignUpPage = () => {
     reValidateMode: "onChange",
   })
 
-  async function onSubmit(data: any) {
+  function onSubmit(data: any) {
     if (!isValid) return
-    try {
-      await dispatch(createUser(data))
-      navigate(clientRoutes.articles.index)
-    } catch (error) {
-      console.error("rejected", error)
-    }
+    dispatch(createUser(data))
+      .then((res) => {
+        if ("error" in res) {
+          throw new Error((res.payload as SerializedError).message)
+        }
+        navigate(clientRoutes.articles.index)
+      })
+      .catch((error) => {
+        alert(error.message)
+      })
   }
 
   return (

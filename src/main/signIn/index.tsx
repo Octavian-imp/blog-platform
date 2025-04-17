@@ -1,6 +1,7 @@
 import { clientRoutes } from "@/router/index"
 import { useAppDispatch } from "@/store/redux"
 import { loginUser } from "@/store/slices/Users"
+import { SerializedError } from "@reduxjs/toolkit"
 import { Button, Flex, Input, Typography } from "antd"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -25,12 +26,16 @@ const SignInPage = (props: Props) => {
 
   function handleLogin(data: any) {
     if (!isValid) return
-    try {
-      dispatch(loginUser(data))
-      navigate(clientRoutes.articles.index)
-    } catch (error) {
-      console.error("rejected", error)
-    }
+    dispatch(loginUser(data))
+      .then((res) => {
+        if ("error" in res) {
+          throw new Error((res.payload as SerializedError).message)
+        }
+        navigate(clientRoutes.articles.index)
+      })
+      .catch((error) => {
+        alert(error.message)
+      })
   }
 
   return (

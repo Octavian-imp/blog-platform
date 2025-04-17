@@ -20,10 +20,13 @@ export default class ArticlesApi {
     tag?: string
     favorited?: string
     author?: string
-  }) {
+  }): Promise<{ articles: Array<TypeArticleItem>; articlesCount: number }> {
     const params = new URLSearchParams(options).toString()
     const response = await fetch(`${this.baseUrl}/articles?${params}`)
     const data: { articles: Array<TypeArticleItem>; articlesCount: number } = await response.json()
+    if (data instanceof Error) {
+      throw new Error("Failed to fetch articles")
+    }
     return data
   }
 
@@ -38,8 +41,11 @@ export default class ArticlesApi {
       body: JSON.stringify({ article: { title, description, body, tagList } }),
       method: "POST",
     }).then((res) => res.json())
-    const data: { article: TypeArticleItem } = await response
-    return data.article
+    const data: { article: TypeArticleItem } | Error = await response
+    if (data instanceof Error) {
+      throw new Error("Failed to create article")
+    }
+    return data
   }
 
   static async delete(slug: string, token: string) {

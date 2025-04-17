@@ -1,14 +1,18 @@
+import { clientRoutes } from "@/router"
 import { useAppDispatch, useAppSelector } from "@/store/redux"
 import { selectUser, updateUser } from "@/store/slices/Users"
+import { SerializedError } from "@reduxjs/toolkit"
 import { Button, Flex, Input, Typography } from "antd"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
+import { useNavigate } from "react-router"
 
 type Props = {}
 
 const ProfilePage = (props: Props) => {
   const user = useAppSelector(selectUser)
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const {
     handleSubmit,
@@ -27,6 +31,15 @@ const ProfilePage = (props: Props) => {
     if (!isValid) return
     console.log(data)
     dispatch(updateUser({ ...data, password: data.newPassword, image: data.avatarUrl }))
+      .then((res) => {
+        if ("error" in res) {
+          throw new Error((res.payload as SerializedError).message)
+        }
+        navigate(clientRoutes.articles.index)
+      })
+      .catch((error) => {
+        alert(error.message)
+      })
   }
 
   return (

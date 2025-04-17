@@ -9,8 +9,14 @@ export const selectArticlesCount = (state: AppState) => state.articles.count
 // async thunks
 export const fetchArticles = createAsyncThunk(
   "articles/fetchArticles",
-  async (options?: { limit?: string; offset?: string; tag?: string; favorited?: string; author?: string }) => {
+  async (
+    options: { limit?: string; offset?: string; tag?: string; favorited?: string; author?: string },
+    { rejectWithValue }
+  ) => {
     const response = await ArticlesApi.fetchArticles(options)
+    if (response instanceof Error) {
+      return rejectWithValue("Failed to fetch articles")
+    }
     const data: { articles: Array<TypeArticleItem>; articlesCount: number } = response
     return data
   }
@@ -48,6 +54,9 @@ export const articleSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchArticles.fulfilled, (state, action) => {
       return { count: action.payload.articlesCount, value: action.payload.articles }
+    })
+    builder.addCase(fetchArticles.rejected, (state, action) => {
+      return { ...state }
     })
   },
 })
