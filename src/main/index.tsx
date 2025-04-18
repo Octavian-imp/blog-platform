@@ -1,4 +1,4 @@
-import { Flex, Pagination, Skeleton } from "antd"
+import { Alert, Flex, Pagination, Skeleton } from "antd"
 import React, { useEffect, useState } from "react"
 import ArticleItem from "../components/ui/ArticleItem"
 import { useAppDispatch, useAppSelector } from "../store/redux"
@@ -7,6 +7,7 @@ import { fetchArticles, selectArticles, selectArticlesCount } from "../store/sli
 const ListPage = () => {
   const dispatch = useAppDispatch()
   const articles = useAppSelector(selectArticles)
+  const articlesError = useAppSelector((state) => state.articles.error)
   const articlesCount = useAppSelector(selectArticlesCount)
   const [currentPage, setCurrentPage] = useState<number>(1)
 
@@ -17,6 +18,27 @@ const ListPage = () => {
   useEffect(() => {
     dispatch(fetchArticles({ offset: String(currentPage === 1 ? 0 : currentPage * articles.length) }))
   }, [currentPage])
+
+  if (articlesError !== null) {
+    return (
+      <Flex
+        style={{
+          maxWidth: "938px",
+          alignSelf: "center",
+          width: "100%",
+          backgroundColor: "white",
+          padding: "15px 14px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          borderRadius: "5px",
+        }}
+        align="center"
+        vertical
+        gap={20}
+      >
+        <Alert message="Error" description={articlesError.message} type="error" style={{ width: "100%" }} />
+      </Flex>
+    )
+  }
 
   if (articles.length === 0) {
     return (

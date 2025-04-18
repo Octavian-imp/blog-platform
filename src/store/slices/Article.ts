@@ -42,9 +42,11 @@ export type TypeArticleItem = {
 const initialState: {
   value: Array<TypeArticleItem>
   count: number
+  error: null | { message: string; code: number }
 } = {
   value: [],
   count: 0,
+  error: null,
 }
 
 export const articleSlice = createSlice({
@@ -53,10 +55,10 @@ export const articleSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchArticles.fulfilled, (state, action) => {
-      return { count: action.payload.articlesCount, value: action.payload.articles }
+      return { error: null, count: action.payload.articlesCount, value: action.payload.articles }
     })
     builder.addCase(fetchArticles.rejected, (state, action) => {
-      return { ...state }
+      return { ...state, error: { message: action.error.message || "Unknown error", code: 0 } }
     })
   },
 })
