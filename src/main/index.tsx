@@ -13,13 +13,14 @@ const ListPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   function handleChangePage(page: number) {
-    setCurrentPage(page)
+    const offset= (page-1) * limitPerPage
+    dispatch(fetchArticles({ offset: String(offset), limit:limitPerPage}))
   }
 
-  useEffect(() =>{ 
-    const offset= (currentPage-1) * limitPerPage
-    dispatch(fetchArticles({ offset: String(offset), limit:limitPerPage}))
-  }, [currentPage])
+  //useEffect(() =>{ 
+    //const offset= (currentPage-1) * limitPerPage
+    //dispatch(fetchArticles({ offset: String(offset), limit:limitPerPage}))
+  //}, [currentPage])
 
   if (articlesError !== null) {
     return (
