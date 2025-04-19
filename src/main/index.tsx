@@ -21,10 +21,7 @@ const ListPage = () => {
     dispatch(fetchArticles({ offset: String(offset), limit:limitPerPage}))
   }, [currentPage]) 
 
-useEffect (() =>{
 
-   alert(articlesCount) 
-}, [articlesCount]) 
 
   if (articlesError !== null) {
     return (
