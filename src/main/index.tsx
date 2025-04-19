@@ -12,7 +12,7 @@ const ListPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   function handleChangePage(page: number) {
-    setCurrentPage(page)
+    setCurrentPage(page-1)
   }
 
   useEffect(() => {
