@@ -4,7 +4,8 @@ import ArticleItem from "../components/ui/ArticleItem"
 import { useAppDispatch, useAppSelector } from "../store/redux"
 import { fetchArticles, selectArticles, selectArticlesCount } from "../store/slices/Article"
 
-const ListPage = () => {
+const ListPage = () => { 
+  const limitPerPage = 20
   const dispatch = useAppDispatch()
   const articles = useAppSelector(selectArticles)
   const articlesError = useAppSelector((state) => state.articles.error)
@@ -16,8 +17,8 @@ const ListPage = () => {
   }
 
   useEffect(() =>{ 
-const offset= (currentPage-1) *20
-    dispatch(fetchArticles({ offset: String(offset), limit:20}))
+    const offset= (currentPage-1) * limitPerPage
+    dispatch(fetchArticles({ offset: String(offset), limit:limitPerPage}))
   }, [currentPage])
 
   if (articlesError !== null) {
