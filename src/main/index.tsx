@@ -60,7 +60,7 @@ const ListPage = () => {
       <Pagination
         align="center"
         defaultCurrent={1}
-        current={currentPage}
+    
         onChange={(page) => handleChangePage(page)}
         total={articlesCount}
         pageSize={articles.length}
