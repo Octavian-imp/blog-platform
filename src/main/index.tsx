@@ -15,7 +15,8 @@ const ListPage = () => {
     setCurrentPage(page)
   }
 
-  useEffect(() =>{ const offset= (currentPage-1) *20
+  useEffect(() =>{ 
+const offset= (currentPage-1) *20
     dispatch(fetchArticles({ offset: String(offset), limit:20}))
   }, [currentPage])
 
