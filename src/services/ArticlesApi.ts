@@ -9,20 +9,23 @@ export type TypeCreateArticle = {
   token: string
 }
 
-export type TypeUpdateArticle = Omit<TypeCreateArticle, "tagList">
+export type TypeUpdateArticle = TypeCreateArticle
 
 export default class ArticlesApi {
   private static baseUrl = "https://blog-platform.kata.academy/api"
 
-  static async fetchArticles(options?: {
-    limit?: string
-    offset?: string
-    tag?: string
-    favorited?: string
-    author?: string
-  }): Promise<{ articles: Array<TypeArticleItem>; articlesCount: number }> {
+  static async fetchArticles(
+    options?: {
+      limit?: string
+      offset?: string
+      tag?: string
+      favorited?: string
+      author?: string
+    },
+    token?: string
+  ): Promise<{ articles: Array<TypeArticleItem>; articlesCount: number }> {
     const params = new URLSearchParams(options).toString()
-    const response = await fetch(`${this.baseUrl}/articles?${params}`)
+    const response = await fetchWithToken(`${this.baseUrl}/articles?${params}`, token || "")
     const data: { articles: Array<TypeArticleItem>; articlesCount: number } = await response.json()
     if (data instanceof Error) {
       throw new Error("Failed to fetch articles")
@@ -30,8 +33,8 @@ export default class ArticlesApi {
     return data
   }
 
-  static async fetchArticlesByTag(slug: string) {
-    const response = await fetch(`${this.baseUrl}/articles/${slug}`)
+  static async fetchArticlesByTag(slug: string, token?: string) {
+    const response = await fetchWithToken(`${this.baseUrl}/articles/${slug}`, token || "")
     const data: { article: TypeArticleItem } = await response.json()
     return data.article
   }
@@ -52,18 +55,35 @@ export default class ArticlesApi {
     const response = await fetchWithToken(`${this.baseUrl}/articles/${slug}`, token, {
       method: "DELETE",
     })
+    console.log(response)
+
     if (!response.ok) {
       throw new Error("Failed to delete article")
     }
-    return response.status === 200
+    return response.ok
   }
 
-  static async update({ title, description, body, slug, token }: TypeUpdateArticle & { slug: string }) {
+  static async update({ title, description, body, tagList, slug, token }: TypeUpdateArticle & { slug: string }) {
     const response = await fetchWithToken(`${this.baseUrl}/articles/${slug}`, token, {
-      body: JSON.stringify({ article: { title, description, body } }),
+      body: JSON.stringify({ article: { title, description, body, tagList } }),
       method: "PUT",
     }).then((res) => res.json())
     const data: { article: TypeArticleItem } = await response
+    return data.article
+  }
+
+  static async favorite(slug: string, token: string) {
+    const response = await fetchWithToken(`${this.baseUrl}/articles/${slug}/favorite`, token, {
+      method: "POST",
+    })
+    const data: { article: TypeArticleItem } = await response.json()
+    return data.article
+  }
+  static async unfavorite(slug: string, token: string) {
+    const response = await fetchWithToken(`${this.baseUrl}/articles/${slug}/favorite`, token, {
+      method: "DELETE",
+    })
+    const data: { article: TypeArticleItem } = await response.json()
     return data.article
   }
 }

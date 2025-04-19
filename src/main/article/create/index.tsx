@@ -1,3 +1,4 @@
+import { clientRoutes } from "@/router"
 import ArticlesApi, { TypeCreateArticle } from "@/services/ArticlesApi"
 import { useAppSelector } from "@/store/redux"
 import { selectToken } from "@/store/slices/Users"
@@ -5,11 +6,13 @@ import { Button, Flex, Input, Space, Typography } from "antd"
 import TextArea from "antd/es/input/TextArea"
 import React from "react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
+import { useNavigate } from "react-router"
 
 export type ArticleForm = Omit<TypeCreateArticle, "tagList"> & { tags: { id: number; value: string }[] }
 
 const CreateArticlePage = () => {
   const token = useAppSelector(selectToken)
+  const navigate = useNavigate()
 
   const {
     handleSubmit,
@@ -26,7 +29,11 @@ const CreateArticlePage = () => {
     reValidateMode: "onChange",
   })
 
-  const { fields: tagFields, append, remove } = useFieldArray({ control, name: "tags" })
+  const {
+    fields: tagFields,
+    append,
+    remove,
+  } = useFieldArray({ control, name: "tags", rules: { required: true, minLength: 1 } })
 
   const onSubmit = (data: ArticleForm) => {
     if (!isValid) return
@@ -40,7 +47,11 @@ const CreateArticlePage = () => {
       tagList: tags,
       token,
     }).then((article) => {
-      console.log(article)
+      if (article instanceof Error) {
+        alert("Failed to create article")
+      }
+
+      navigate(clientRoutes.articles.detail(article.article.slug))
     })
   }
 
@@ -111,7 +122,7 @@ const CreateArticlePage = () => {
           <Flex vertical gap={4}>
             {tagFields.map((item, index) => (
               <Controller
-                key={index}
+                key={item.id}
                 name={`tags.${index}.value`}
                 control={control}
                 rules={{
@@ -123,8 +134,13 @@ const CreateArticlePage = () => {
                 }}
                 render={({ field, fieldState }) => (
                   <Space.Compact key={item.id} style={{ width: "50%" }}>
-                    <Input {...field} status={fieldState.error ? "error" : undefined} />
-                    <Button danger onClick={() => remove(index)}>
+                    <Input {...field} defaultValue={field.value} status={fieldState.error ? "error" : undefined} />
+                    <Button
+                      danger
+                      onClick={() => {
+                        remove(index)
+                      }}
+                    >
                       delete
                     </Button>
                     <Button

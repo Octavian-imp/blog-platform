@@ -5,7 +5,7 @@ export const router = Object.freeze({
   profile: "/profile",
   articles: {
     index: "articles",
-    create: "create",
+    create: "new-article",
     edit: "edit",
     detail: ":id",
   },
@@ -19,7 +19,8 @@ export const clientRoutes = Object.freeze({
   profile: "/profile",
   articles: {
     index: "/articles",
-    create: "/articles/create",
+    create: "/articles/new-article",
     edit: (slug: string) => `/articles/${slug}/edit`,
+    detail: (slug: string) => `/articles/${slug}`,
   },
 } as const)

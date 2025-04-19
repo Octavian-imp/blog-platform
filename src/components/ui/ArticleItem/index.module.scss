@@ -13,7 +13,7 @@
   }
   .favorite {
     color: #000;
-    @apply flex items-center gap-1 text-xs leading-[22px] select-none;
+    @apply flex items-center gap-1 text-xs leading-[22px] select-none cursor-pointer;
     &.disabled {
       color: rgba(#000, 0.5);
       pointer-events: none;

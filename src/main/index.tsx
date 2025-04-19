@@ -4,7 +4,7 @@ import ArticleItem from "../components/ui/ArticleItem"
 import { useAppDispatch, useAppSelector } from "../store/redux"
 import { fetchArticles, selectArticles, selectArticlesCount } from "../store/slices/Article"
 
-const ListPage = () => { 
+const ListPage = () => {
   const limitPerPage = 20
   const dispatch = useAppDispatch()
   const articles = useAppSelector(selectArticles)
@@ -13,15 +13,13 @@ const ListPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   function handleChangePage(page: number) {
-    setCurrentPage(page) 
+    setCurrentPage(page)
   }
 
-  useEffect(() =>{ 
-    const offset= (currentPage-1) * limitPerPage
-    dispatch(fetchArticles({ offset: String(offset), limit:limitPerPage}))
-  }, [currentPage]) 
-
-
+  useEffect(() => {
+    const offset = (currentPage - 1) * limitPerPage
+    dispatch(fetchArticles({ offset: String(offset), limit: String(limitPerPage) }))
+  }, [currentPage])
 
   if (articlesError !== null) {
     return (
@@ -62,7 +60,6 @@ const ListPage = () => {
       <Pagination
         align="center"
         defaultCurrent={1}
-    
         onChange={(page) => handleChangePage(page)}
         total={articlesCount}
         pageSize={limitPerPage}

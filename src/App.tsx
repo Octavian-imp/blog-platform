@@ -9,6 +9,7 @@ import EditArticlePage from "./main/article/edit"
 import SignInPage from "./main/signIn"
 import SignUpPage from "./main/signUp"
 import { router } from "./router"
+import AuthLayout from "./components/layouts/AuthLayout"
 
 const App = () => {
   return (
@@ -17,12 +18,14 @@ const App = () => {
         <Route index element={<ListPage />} />
         <Route path={router.signIn} element={<SignInPage />} />
         <Route path={router.signUp} element={<SignUpPage />} />
-        <Route path={router.profile} element={<ProfilePage />} />
-        <Route path={router.articles.index}>
-          <Route index element={<ListPage />} />
-          <Route path={router.articles.create} element={<CreateArticlePage />} />
-          <Route path={":slug"} element={<DetailArticlePage />} />
-          <Route path={":slug/edit"} element={<EditArticlePage />} />
+        <Route path={router.articles.index} element={<ListPage />} />
+        <Route element={<AuthLayout />}>
+          <Route path={router.profile} element={<ProfilePage />} />
+          <Route path={router.articles.index}>
+            <Route path={router.articles.create} element={<CreateArticlePage />} />
+            <Route path={":slug"} element={<DetailArticlePage />} />
+            <Route path={":slug/edit"} element={<EditArticlePage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

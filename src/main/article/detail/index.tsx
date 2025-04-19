@@ -7,26 +7,14 @@ import { useParams } from "react-router"
 
 const DetailArticlePage = () => {
   const params: Readonly<Partial<{ slug: string }>> = useParams()
-  const [article, setArticle] = useState<TypeArticleItem>()
 
-  useLayoutEffect(() => {
-    if (typeof params.slug === "undefined") return
-    ArticlesApi.fetchArticlesByTag(params.slug)
-      .then((data) => {
-        setArticle(data)
-      })
-      .catch((error) => {
-        console.error("Error fetching article:", error)
-      })
-  }, [params.slug])
-
-  if (!article) {
-    return (
-      <Flex style={{ maxWidth: "938px", alignSelf: "center", width: "100%" }} align="center" vertical gap={20}>
-        <Skeleton style={{ backgroundColor: "white", padding: "14px 15px", borderRadius: "5px" }} />
-      </Flex>
-    )
-  }
+  // if (!article) {
+  //   return (
+  //     <Flex style={{ maxWidth: "938px", alignSelf: "center", width: "100%" }} align="center" vertical gap={20}>
+  //       <Skeleton style={{ backgroundColor: "white", padding: "14px 15px", borderRadius: "5px" }} />
+  //     </Flex>
+  //   )
+  // }
 
   return (
     <Flex
@@ -37,7 +25,7 @@ const DetailArticlePage = () => {
         width: "100%",
       }}
     >
-      <ArticleItem.Large {...article} />
+      <ArticleItem.Large slug={params.slug!} />
     </Flex>
   )
 }

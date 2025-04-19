@@ -1,21 +1,53 @@
-import { Button, Flex, Image, Popover, Tag, Typography } from "antd"
+import { Button, Flex, Image, Popover, Skeleton, Tag, Typography } from "antd"
 import Title from "antd/es/typography/Title"
 
+import { clientRoutes } from "@/router"
 import ArticlesApi from "@/services/ArticlesApi"
-import { useAppSelector } from "@/store/redux"
+import { useAppDispatch, useAppSelector } from "@/store/redux"
+import { addFavorite, removeFavorite, TypeArticleItem } from "@/store/slices/Article"
 import { selectUser } from "@/store/slices/Users"
-import { orange } from "@ant-design/colors"
-import { HeartOutlined, InfoCircleFilled } from "@ant-design/icons"
+import cn from "@/utils/classnames"
+import useIsAuth from "@/utils/useIsAuth"
+import { orange, red } from "@ant-design/colors"
+import { HeartFilled, HeartOutlined, InfoCircleFilled } from "@ant-design/icons"
 import { format } from "date-fns"
-import React, { useState } from "react"
+import React, { useEffect, useLayoutEffect, useState } from "react"
 import Markdown from "react-markdown"
-import { Link, useNavigate } from "react-router"
-import { clientRoutes } from "../../../router"
-import { TypeArticleItem } from "../../../store/slices/Article"
-import cn from "../../../utils/classnames"
+import { Link, useNavigate, useParams } from "react-router"
 import styles from "./index.module.scss"
 
-const ArticleItem = ({ author, title, favoritesCount, tagList, description, createdAt, slug }: TypeArticleItem) => {
+const ArticleItem = ({
+  author,
+  title,
+  favoritesCount,
+  tagList,
+  description,
+  createdAt,
+  slug,
+  favorited,
+}: TypeArticleItem) => {
+  const dispatch = useAppDispatch()
+  const isAuth = useIsAuth()
+
+  function favorite() {
+    if (!isAuth) return
+    console.log("favorited", favorited)
+
+    if (favorited) {
+      dispatch(removeFavorite(slug)).then((res) => {
+        if (res.meta.requestStatus === "rejected") {
+          console.log(res)
+        }
+        return
+      })
+    } else {
+      dispatch(addFavorite(slug)).then((res) => {
+        if (!res) return
+        console.log(res)
+      })
+    }
+  }
+
   return (
     <Flex align="flex-start" justify="space-between" className={styles.container} gap={85}>
       <Flex vertical>
@@ -23,8 +55,16 @@ const ArticleItem = ({ author, title, favoritesCount, tagList, description, crea
           <Link to={`${clientRoutes.articles.index}/${slug}`} className={styles.title}>
             {title}
           </Link>
-          <button className={cn(styles.favorite, { [styles.disabled]: true })}>
-            <HeartOutlined style={{ fontSize: "1rem" }} />
+          <button className={cn(styles.favorite, { [styles.disabled]: !isAuth })} disabled={!isAuth} onClick={favorite}>
+            {isAuth ? (
+              favorited ? (
+                <HeartFilled style={{ fontSize: "1rem", color: red["5"] }} />
+              ) : (
+                <HeartOutlined style={{ fontSize: "1rem" }} />
+              )
+            ) : (
+              <HeartOutlined style={{ fontSize: "1rem", color: "#ccc" }} />
+            )}
             {favoritesCount}
           </button>
         </Flex>
@@ -57,22 +97,34 @@ const ArticleItem = ({ author, title, favoritesCount, tagList, description, crea
   )
 }
 
-ArticleItem.Large = ({
-  author,
-  title,
-  favoritesCount,
-  tagList,
-  description,
-  createdAt,
-  body,
-  favorited,
-  slug,
-}: TypeArticleItem) => {
+ArticleItem.Large = ({ slug }: { slug: string }) => {
+  // FIXME: если убрать статью из избранного, то она не изменит свой статус в ui
+  const params: Readonly<Partial<{ slug: string }>> = useParams()
+  const [article, setArticle] = useState<TypeArticleItem | null>(null)
+
+  useEffect(() => {
+    console.log("article", article)
+  }, [article])
+
   const user = useAppSelector(selectUser)
-  const isAuthor = user.username === author.username
+  const isAuthor = user.username === article?.author?.username
   const navigate = useNavigate()
+  const isAuth = useIsAuth()
+  const dispatch = useAppDispatch()
 
   const [openDeletePopover, setOpenDeletePopover] = useState(false)
+
+  useLayoutEffect(() => {
+    if (typeof params.slug === "undefined") return
+    ArticlesApi.fetchArticlesByTag(params.slug, user.token)
+      .then((data) => {
+        console.log(data)
+        setArticle(data)
+      })
+      .catch((error) => {
+        console.error("Error fetching article:", error)
+      })
+  }, [params.slug])
 
   function handleDelete() {
     if (!isAuthor) return
@@ -81,6 +133,27 @@ ArticleItem.Large = ({
         navigate(clientRoutes.articles.index)
       }
     })
+  }
+
+  if (article === null) {
+    return <Skeleton style={{ backgroundColor: "white", padding: "14px 15px", borderRadius: "5px" }} active />
+  }
+
+  function favorite() {
+    if (!isAuth || !article) return
+
+    if (article.favorited) {
+      dispatch(removeFavorite(slug)).then((res) => {
+        if (res.meta.requestStatus === "rejected") {
+          console.log(res)
+        }
+      })
+    } else {
+      dispatch(addFavorite(slug)).then((res) => {
+        if (!res) return
+        console.log(res)
+      })
+    }
   }
 
   function PopoverConfirmDelete() {
@@ -114,32 +187,46 @@ ArticleItem.Large = ({
         <Flex vertical>
           <Flex align="center" gap={13}>
             <Link to="#" className={styles.title}>
-              {title}
+              {article.title}
             </Link>
-            <button className={styles.favorite}>
-              <HeartOutlined style={{ fontSize: "1rem" }} />
-              {favoritesCount}
+            <button
+              className={cn(styles.favorite, { [styles.disabled]: !isAuth })}
+              onClick={favorite}
+              disabled={!isAuth}
+            >
+              {isAuth ? (
+                article.favorited ? (
+                  <HeartFilled style={{ fontSize: "1rem", color: red["5"] }} />
+                ) : (
+                  <HeartOutlined style={{ fontSize: "1rem" }} />
+                )
+              ) : (
+                <HeartOutlined style={{ fontSize: "1rem", color: "#ccc" }} />
+              )}
+              {article.favoritesCount}
             </button>
           </Flex>
           <Flex align="center" gap={8}>
-            {tagList.map((tag, index) => (
+            {article.tagList.map((tag, index) => (
               <Tag key={index} className={styles.tagItem}>
                 {tag}
               </Tag>
             ))}
           </Flex>
-          <Typography.Text className={styles.previewDescription}>{description}</Typography.Text>
+          <Typography.Text className={styles.previewDescription}>{article.description}</Typography.Text>
         </Flex>
         <Flex vertical align="flex-end" gap={30}>
           <Flex align="center" className="align" gap={12}>
             <Flex vertical>
               <Title level={4} className={styles.username}>
-                {author.username}
+                {article.author.username}
               </Title>
-              <Typography.Text className={styles.createdAtArticle}>{format(createdAt, "MMM dd, yyyy")}</Typography.Text>
+              <Typography.Text className={styles.createdAtArticle}>
+                {format(article.createdAt, "MMM dd, yyyy")}
+              </Typography.Text>
             </Flex>
             <Image
-              src={`${author.image}`}
+              src={`${article.author.image}`}
               style={{ objectFit: "cover", borderRadius: "50%" }}
               height={46}
               width={46}
@@ -169,7 +256,7 @@ ArticleItem.Large = ({
         </Flex>
       </Flex>
       <Typography.Text style={{ padding: "25px 42px 16px 16px" }}>
-        <Markdown>{body}</Markdown>
+        <Markdown>{article.body}</Markdown>
       </Typography.Text>
     </Flex>
   )

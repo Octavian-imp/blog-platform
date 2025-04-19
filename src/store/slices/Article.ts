@@ -11,13 +11,39 @@ export const fetchArticles = createAsyncThunk(
   "articles/fetchArticles",
   async (
     options: { limit?: string; offset?: string; tag?: string; favorited?: string; author?: string },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
-    const response = await ArticlesApi.fetchArticles(options)
+    const state = getState() as AppState
+    const response = await ArticlesApi.fetchArticles(options, state.users.token)
     if (response instanceof Error) {
       return rejectWithValue("Failed to fetch articles")
     }
     const data: { articles: Array<TypeArticleItem>; articlesCount: number } = response
+    return data
+  }
+)
+
+export const addFavorite = createAsyncThunk(
+  "articles/addFavorite",
+  async (slug: string, { rejectWithValue, getState }) => {
+    const state = getState() as AppState
+    const response = await ArticlesApi.favorite(slug, state.users.token)
+    if (response instanceof Error) {
+      return rejectWithValue("Failed to add favorite")
+    }
+    const data: TypeArticleItem = response
+    return data
+  }
+)
+export const removeFavorite = createAsyncThunk(
+  "articles/removeFavorite",
+  async (slug: string, { rejectWithValue, getState }) => {
+    const state = getState() as AppState
+    const response = await ArticlesApi.unfavorite(slug, state.users.token)
+    if (response instanceof Error) {
+      return rejectWithValue("Failed to remove favorite")
+    }
+    const data: TypeArticleItem = response
     return data
   }
 )
@@ -54,12 +80,48 @@ export const articleSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchArticles.fulfilled, (state, action) => {
-      return { error: null, count: action.payload.articlesCount, value: action.payload.articles }
-    })
-    builder.addCase(fetchArticles.rejected, (state, action) => {
-      return { ...state, error: { message: action.error.message || "Unknown error", code: 0 } }
-    })
+    builder
+      .addCase(fetchArticles.fulfilled, (state, action) => {
+        return { error: null, count: action.payload.articlesCount, value: action.payload.articles }
+      })
+      .addCase(fetchArticles.rejected, (state, action) => {
+        return { ...state, error: { message: action.error.message || "Unknown error", code: 0 } }
+      })
+      .addCase(addFavorite.fulfilled, (state, action) => {
+        console.log("pending", action)
+
+        return {
+          ...state,
+          value: state.value.map((item) =>
+            item.slug === action.payload.slug
+              ? { ...item, favorited: true, favoritesCount: item.favoritesCount + 1 }
+              : item
+          ),
+        }
+      })
+      .addCase(addFavorite.rejected, (state, action) => {
+        return {
+          ...state,
+          error: { message: action.error.message || "Unknown error", code: 0 },
+        }
+      })
+      .addCase(removeFavorite.fulfilled, (state, action) => {
+        return {
+          ...state,
+          value: state.value.map((item) =>
+            item.slug === action.payload.slug
+              ? { ...item, favorited: false, favoritesCount: item.favoritesCount - 1 }
+              : item
+          ),
+        }
+      })
+      .addCase(removeFavorite.rejected, (state, action) => {
+        console.log("rejected", action)
+        return {
+          ...state,
+          error: { message: action.error.message || "Unknown error", code: 0 },
+        }
+      })
   },
 })
 

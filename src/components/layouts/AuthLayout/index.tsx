@@ -1,15 +1,15 @@
+import { clientRoutes } from "@/router"
+import useIsAuth from "@/utils/useIsAuth"
 import React from "react"
-import { Outlet } from "react-router"
+import { Navigate, Outlet } from "react-router"
 
-type Props = {}
+const AuthLayout = () => {
+  const isAuth = useIsAuth()
+  if (!isAuth) {
+    return <Navigate to={clientRoutes.signIn} />
+  }
 
-const AuthLayout = (props: Props) => {
-  return (
-    <>
-      <div>AuthLayout</div>
-      <Outlet />
-    </>
-  )
+  return <Outlet />
 }
 
 export default AuthLayout
