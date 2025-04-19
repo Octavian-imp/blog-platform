@@ -68,7 +68,7 @@ useEffect (() =>{
     
         onChange={(page) => handleChangePage(page)}
         total={articlesCount}
-        pageSize={articles.length}
+        pageSize={limitPerPage}
         showSizeChanger={false}
       />
     </Flex>
