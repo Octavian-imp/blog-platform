@@ -1,10 +1,10 @@
 import { Alert, Flex, Pagination, Skeleton } from "antd"
-import React, { useEffect,  memo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import ArticleItem from "../components/ui/ArticleItem"
 import { useAppDispatch, useAppSelector } from "../store/redux"
 import { fetchArticles, selectArticles, selectArticlesCount } from "../store/slices/Article"
 
-const ListPage = memo(() => { 
+const ListPage = () => { 
   const limitPerPage = 20
   const dispatch = useAppDispatch()
   const articles = useAppSelector(selectArticles)
@@ -68,6 +68,6 @@ const ListPage = memo(() => {
       />
     </Flex>
   )
-}) 
+}
 
 export default ListPage
