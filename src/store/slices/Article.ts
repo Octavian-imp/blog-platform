@@ -88,7 +88,7 @@ export const articleSlice = createSlice({
         return { ...state, error: { message: action.error.message || "Unknown error", code: 0 } }
       })
       .addCase(addFavorite.fulfilled, (state, action) => {
-        console.log("pending", action)
+        // console.log("pending", action)
 
         return {
           ...state,

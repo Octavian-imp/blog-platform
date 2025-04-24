@@ -102,10 +102,6 @@ ArticleItem.Large = ({ slug }: { slug: string }) => {
   const params: Readonly<Partial<{ slug: string }>> = useParams()
   const [article, setArticle] = useState<TypeArticleItem | null>(null)
 
-  useEffect(() => {
-    console.log("article", article)
-  }, [article])
-
   const user = useAppSelector(selectUser)
   const isAuthor = user.username === article?.author?.username
   const navigate = useNavigate()
@@ -144,14 +140,16 @@ ArticleItem.Large = ({ slug }: { slug: string }) => {
 
     if (article.favorited) {
       dispatch(removeFavorite(slug)).then((res) => {
-        if (res.meta.requestStatus === "rejected") {
+        if ("error" in res) {
           console.log(res)
+          return
         }
+        setArticle(res.payload)
       })
     } else {
       dispatch(addFavorite(slug)).then((res) => {
-        if (!res) return
-        console.log(res)
+        if ("error" in res) return
+        setArticle(res.payload)
       })
     }
   }
